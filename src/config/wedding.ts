@@ -55,6 +55,8 @@ export type WeddingConfig = {
   isSample: boolean;
   invocation: string;
   timeZone: string;
+  /** Second time zone shown beside every event time, for guests abroad (e.g. "America/New_York") */
+  secondaryTimeZone?: string;
   bride: Person;
   groom: Person;
   /** Heading and line shown in the couple section */
@@ -67,6 +69,8 @@ export type WeddingConfig = {
   venues: Venue[];
   /** The ceremony (by id) whose venue the venue section shows */
   venueCeremonyId: string;
+  /** The ceremony (by id) the countdown counts down to */
+  countdownCeremonyId: string;
   gallery: GalleryImage[];
   rsvp: {
     enabled: boolean;
@@ -91,13 +95,15 @@ export const wedding: WeddingConfig = {
 
   invocation: "Om Shri Ganeshaya Namah",
   timeZone: "Asia/Kolkata",
+  /** US Eastern (EST in November) */
+  secondaryTimeZone: "America/New_York",
 
   groom: {
     name: "Murali N.",
     invitationName: "Ch. Ry Murali. N",
     qualification: "B.E., M.S.",
     parents: "Son of Smt. Manjula. K & Sri. Narayanaswamy. M",
-    address: "Channapura, Angondahalli Panchayathi, Mulbagal Taluk, Kolar District.",
+    address: "Channapura, Angondahalli Panchayathi, Mulbagal Taluk, Kolar District, Karnataka, India.",
     photo: "/images/couple/groom.webp",
   },
 
@@ -106,7 +112,7 @@ export const wedding: WeddingConfig = {
     invitationName: "Ch. Sou. Varshitha. D. S",
     qualification: "B.Sc.",
     parents: "Daughter of Smt. Bharathi. S & Sri. Santhosh. M",
-    address: "Doddamadenahalli, Balla Panchayathi, Mulbagal Taluk, Kolar District.",
+    address: "Doddamadenahalli, Balla Panchayathi, Mulbagal Taluk, Kolar District, Karnataka, India.",
     photo: "/images/couple/bride.webp",
   },
 
@@ -119,23 +125,8 @@ export const wedding: WeddingConfig = {
   /** The Muhurtham (IST); drives the countdown and the hero date. */
   weddingStart: "2026-11-19T04:30",
 
+  /** Display order on the page — the Reception is the main event. */
   ceremonies: [
-    {
-      id: "haldi",
-      name: "Haldi",
-      start: "2026-11-16T14:00",
-      venueId: "home",
-      description: "Let's begin the celebrations with colours, laughter, and blessings. Join us for a joyful Haldi celebration.",
-      motif: "haldi",
-    },
-    {
-      id: "mehendi",
-      name: "Mehendi",
-      start: "2026-11-17T14:00",
-      venueId: "home",
-      description: "An afternoon filled with beautiful traditions, intricate mehendi, and happy moments. We can't wait to celebrate with you.",
-      motif: "mehendi",
-    },
     {
       id: "reception",
       name: "Reception",
@@ -154,6 +145,22 @@ export const wedding: WeddingConfig = {
       description: "With the blessings of our families and elders, join us for the auspicious wedding ceremony of Murali and Varshitha.",
       motif: "vivah",
     },
+    {
+      id: "haldi",
+      name: "Haldi",
+      start: "2026-11-16T14:00",
+      venueId: "home",
+      description: "Let's begin the celebrations with colours, laughter, and blessings. Join us for a joyful Haldi celebration.",
+      motif: "haldi",
+    },
+    {
+      id: "mehendi",
+      name: "Mehendi",
+      start: "2026-11-17T14:00",
+      venueId: "home",
+      description: "An afternoon filled with beautiful traditions, intricate mehendi, and happy moments. We can't wait to celebrate with you.",
+      motif: "mehendi",
+    },
   ],
 
   venues: [
@@ -168,13 +175,25 @@ export const wedding: WeddingConfig = {
       name: "Sri Phoolchand Jain Convention Hall",
       address: "Near Sonnavadi Road, NH 75 Bridge, M.N. Road, Mulbagal Bypass, Mulbagal - 563131, Kolar District.",
       mapUrl: "https://maps.app.goo.gl/CYFUihGDYqt4CLbq5",
+      /** Illustrative artwork of a reception hall (not a photograph of the venue) */
+      photo: "/images/generated/venue-reception.webp",
     },
   ],
 
-  venueCeremonyId: "muhurtham",
+  venueCeremonyId: "reception",
+  countdownCeremonyId: "reception",
 
-  /** Add the couple's own photographs here (e.g. { src: "/images/gallery/01.webp", alt: "…", shape: "tall" }). Empty hides the section. */
-  gallery: [],
+  /** Shapes chosen so 8 tiles fill the grid exactly; any mix works. Empty hides the section. */
+  gallery: [
+    { src: "/images/gallery/01-sacred-fire.webp", alt: "Hands joined over the sacred fire", shape: "tall" },
+    { src: "/images/gallery/04-seated.webp", alt: "A couple seated during the ceremony", shape: "wide" },
+    { src: "/images/gallery/03-portrait.webp", alt: "A couple under a canopy of lights", shape: "tall" },
+    { src: "/images/gallery/05-mehendi.webp", alt: "Mehendi-adorned hands", shape: "wide" },
+    { src: "/images/gallery/02-floral-arch.webp", alt: "Celebrating under a floral arch", shape: "square" },
+    { src: "/images/gallery/06-haldi.webp", alt: "Haldi morning", shape: "square" },
+    { src: "/images/gallery/07-together.webp", alt: "A couple in traditional attire", shape: "square" },
+    { src: "/images/gallery/08-bride.webp", alt: "Bridal portrait", shape: "square" },
+  ],
 
   rsvp: {
     enabled: true,

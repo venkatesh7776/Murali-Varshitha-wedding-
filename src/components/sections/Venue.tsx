@@ -21,7 +21,7 @@ export function Venue() {
           {photo || illustration ? (
             <Image
               src={(photo ?? illustration)!}
-              alt={photo ? venue.name : "Illustration of a heritage wedding courtyard"}
+              alt={photo ? `Illustration of a wedding reception hall` : "Illustration of a heritage wedding courtyard"}
               fill
               sizes="(min-width: 768px) 36rem, 92vw"
               className="object-cover"
@@ -43,6 +43,7 @@ export function Venue() {
             <address className="mt-6 not-italic leading-relaxed text-ivory/80">{venue.address}</address>
             <p className="mt-4 text-sm text-gold-muted">
               {venueCeremony.dateLabel} · {venueCeremony.timeLabel}
+              {venueCeremony.altTimeLabel && <span className="mt-1 block text-ivory/60">{venueCeremony.altTimeLabel}</span>}
             </p>
           </Reveal>
           <Reveal delay={200} className="mt-8">

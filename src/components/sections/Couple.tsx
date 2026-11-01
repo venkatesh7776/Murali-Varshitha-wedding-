@@ -42,7 +42,17 @@ function Portrait({ person, role, delay, className = "" }: { person: Person; rol
             {[person.invitationName, person.qualification].filter(Boolean).join(" · ")}
           </p>
         )}
-        {person.parents && <p className="t-lead mt-3 text-[1.05rem] text-ink-muted">{person.parents}</p>}
+        {person.parents && (
+          <p className="mt-3 text-[1rem] font-semibold leading-relaxed text-ink">
+            {/* keep each parent's name on one line */}
+            {person.parents.split(" & ").map((part, i) => (
+              <span key={part}>
+                {i > 0 && " & "}
+                <span className="whitespace-nowrap">{part}</span>
+              </span>
+            ))}
+          </p>
+        )}
         <span aria-hidden className="mx-auto mt-5 block h-px w-12 bg-gold/60" />
         {person.address && (
           <address className="mx-auto mt-5 max-w-[32ch] text-[0.95rem] not-italic leading-relaxed text-ink-muted">{person.address}</address>

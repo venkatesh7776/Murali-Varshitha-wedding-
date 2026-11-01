@@ -41,6 +41,7 @@ function CeremonyCard({ c, index }: { c: CeremonyView; index: number }) {
             <div>
               <dt className="sr-only">Time</dt>
               <dd className="font-medium text-ink">{c.timeLabel}</dd>
+              {c.altTimeLabel && <dd className="text-sm text-ink-muted">{c.altTimeLabel}</dd>}
             </div>
             <div className="pt-1">
               <dt className="sr-only">Venue</dt>

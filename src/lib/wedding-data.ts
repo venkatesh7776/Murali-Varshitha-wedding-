@@ -12,9 +12,21 @@ export const weddingDateLabel = weddingDate
   ? formatDate(weddingDate, tz, { weekday: "long" })
   : "Date to be announced";
 
+const tz2 = wedding.secondaryTimeZone;
+const dayKey = (d: Date, zone: string) => formatDate(d, zone, { day: "numeric", month: "numeric", year: "numeric" });
+
+/** The same time in the secondary zone, e.g. "8:00 am EST" — with the date when it falls on a different day. */
+function altTimeLabel(start: Date, end?: Date) {
+  if (!tz2) return undefined;
+  const range = `${formatTime(start, tz2)}${end ? ` – ${formatTime(end, tz2)}` : " onwards"} ${zoneLabel(start, tz2)}`;
+  return dayKey(start, tz2) === dayKey(start, tz)
+    ? range
+    : `${range}, ${formatDate(start, tz2, { weekday: "short", day: "numeric", month: "short", year: undefined })}`;
+}
+
 const venueById = new Map(wedding.venues.map((v) => [v.id, v]));
 
-/** Ceremonies with real instants, their venue and display strings, in chronological order. */
+/** Ceremonies with real instants, their venue and display strings, in the configured display order. */
 export const ceremonies = wedding.ceremonies
   .map((c) => {
     const start = zonedToDate(c.start, tz);
@@ -29,24 +41,27 @@ export const ceremonies = wedding.ceremonies
       endIso: (end ?? new Date(start.getTime() + 3 * 3600_000)).toISOString(),
       dateLabel: formatDate(start, tz, { weekday: "long" }),
       timeLabel: `${formatTime(start, tz)}${end ? ` – ${formatTime(end, tz)}` : " onwards"} ${zoneLabel(start, tz)}`,
+      altTimeLabel: altTimeLabel(start, end),
     };
-  })
-  .sort((a, b) => a.startIso.localeCompare(b.startIso));
+  });
 
 export type CeremonyView = (typeof ceremonies)[number];
 
 /** The ceremony featured in the venue section (the Muhurtham). */
 export const venueCeremony = ceremonies.find((c) => c.id === wedding.venueCeremonyId);
 
+/** The ceremony the countdown targets (the reception). */
+export const countdownCeremony = ceremonies.find((c) => c.id === wedding.countdownCeremonyId);
+
 /** The ceremony the RSVP form is for (the reception). */
 export const rsvpCeremony = ceremonies.find((c) => c.id === wedding.rsvp.ceremonyId);
 
 /**
- * The countdown switches to "Today is the day!" at the muhurtham and stays there until the
- * end of that day (IST) or the last ceremony, whichever is later; then it shows a thank-you.
+ * The countdown switches to "Today is the day!" when the reception starts and stays there until
+ * the end of that day (IST) or the last ceremony, whichever is later; then it shows a thank-you.
  */
 export const celebrationsEndIso = (() => {
-  if (!weddingDate) return undefined;
-  const endOfDay = zonedToDate(`${wedding.weddingStart.split("T")[0]}T23:59`, tz).toISOString();
+  if (!countdownCeremony) return undefined;
+  const endOfDay = zonedToDate(`${wedding.ceremonies.find((c) => c.id === countdownCeremony.id)!.start.split("T")[0]}T23:59`, tz).toISOString();
   return [endOfDay, ...ceremonies.map((c) => c.endIso)].sort().at(-1);
 })();

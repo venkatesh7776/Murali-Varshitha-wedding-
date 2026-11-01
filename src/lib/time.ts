@@ -45,9 +45,12 @@ export function formatTime(date: Date, timeZone: string) {
 
 /** Short zone label such as "IST" for display next to times. */
 export function zoneLabel(date: Date, timeZone: string) {
-  return (
-    new Intl.DateTimeFormat("en-IN", { timeZone, timeZoneName: "short" })
+  // en-IN names IST; en-US names US zones (EST/EDT) — use whichever gives a real abbreviation.
+  for (const locale of ["en-IN", "en-US"]) {
+    const name = new Intl.DateTimeFormat(locale, { timeZone, timeZoneName: "short" })
       .formatToParts(date)
-      .find((p) => p.type === "timeZoneName")?.value ?? timeZone
-  );
+      .find((p) => p.type === "timeZoneName")?.value;
+    if (name && !name.startsWith("GMT")) return name;
+  }
+  return timeZone;
 }
