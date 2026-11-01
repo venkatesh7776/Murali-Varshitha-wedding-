@@ -32,9 +32,6 @@ export function Venue() {
               <p className="t-label text-[10px] text-gold-muted">Venue photograph to follow</p>
             </div>
           )}
-          {!photo && illustration && (
-            <span className="t-label absolute bottom-3 left-3 bg-burgundy/70 px-2 py-1 text-[9px] text-gold-muted">Illustration</span>
-          )}
         </Reveal>
 
         <div className="text-center md:text-left">
