@@ -9,8 +9,8 @@ type Saved = { name: string; attending: "yes" | "no" };
 const STORAGE_KEY = "rsvp-submitted";
 
 const messages: Record<string, string> = {
-  not_configured: "Online RSVPs aren't open yet. Please reply to the family directly — we're sorry for the trouble.",
-  storage_failed: "We couldn't save your response just now. Please try again in a moment.",
+  not_configured: "Online RSVPs aren't open yet, so your response was not saved. Please reply to the family directly — we're sorry for the trouble.",
+  storage_failed: "We couldn't save your response just now, so it was not recorded. Please try again in a moment.",
   closed: "RSVPs are now closed. Please contact the family directly.",
   network: "We couldn't reach the server. Please check your connection and try again.",
 };
@@ -90,7 +90,7 @@ export function RsvpForm({ collectGuestCount, maxGuests }: { collectGuestCount: 
         </svg>
         <h3 className="t-h3 mt-6">Thank you, {saved.name}</h3>
         <p className="mt-3 text-ink-muted">
-          {saved.attending === "yes" ? "We can't wait to celebrate with you." : "You'll be missed — thank you for letting us know."}
+          {saved.attending === "yes" ? "Your RSVP for the reception has been received. We can't wait to celebrate with you." : "You'll be missed — thank you for letting us know."}
         </p>
       </div>
     );
@@ -114,7 +114,7 @@ export function RsvpForm({ collectGuestCount, maxGuests }: { collectGuestCount: 
 
       <div>
         <label htmlFor={`${uid}-name`} className="t-label text-[11px] text-maroon">
-          Your name
+          Guest name
         </label>
         <input
           id={`${uid}-name`}
@@ -131,12 +131,12 @@ export function RsvpForm({ collectGuestCount, maxGuests }: { collectGuestCount: 
       </div>
 
       <fieldset aria-describedby={errors.attending ? `${uid}-attending-err` : undefined}>
-        <legend className="t-label text-[11px] text-maroon">Will you attend?</legend>
+        <legend className="t-label text-[11px] text-maroon">Will you be attending?</legend>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {(
             [
-              ["yes", "Joyfully accepts"],
-              ["no", "Regretfully declines"],
+              ["yes", "Joyfully Accept"],
+              ["no", "Regretfully Decline"],
             ] as const
           ).map(([value, label]) => (
             <label
@@ -183,7 +183,7 @@ export function RsvpForm({ collectGuestCount, maxGuests }: { collectGuestCount: 
 
       <div>
         <label htmlFor={`${uid}-message`} className="t-label text-[11px] text-maroon">
-          Wishes for the couple <span className="normal-case tracking-normal text-ink-muted">(optional)</span>
+          Message to the couple <span className="normal-case tracking-normal text-ink-muted">(optional)</span>
         </label>
         <textarea
           id={`${uid}-message`}

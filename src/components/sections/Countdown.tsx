@@ -10,7 +10,7 @@ export function Countdown() {
       <KolamTexture className="opacity-[0.06]" id="kolam-countdown" />
       <div className="container-wide relative text-center">
         <Reveal>
-          <p className="t-label text-gold">Counting down to</p>
+          <p className="t-label text-gold">Counting down to the Muhurtham</p>
           <h2 className="t-h2 mt-4">{weddingDateLabel}</h2>
         </Reveal>
         {weddingDate && celebrationsEndIso && (

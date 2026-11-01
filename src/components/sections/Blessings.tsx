@@ -3,7 +3,7 @@ import { generated } from "@/lib/assets";
 import { weddingDateLabel } from "@/lib/wedding-data";
 import { Mandap } from "../art/Mandap";
 import { Toranam } from "../art/Toranam";
-import { ArchEdge } from "../art/Ornaments";
+import { ArchEdge, KolamTexture } from "../art/Ornaments";
 import { Reveal } from "../motion/Reveal";
 import { Akshantalu } from "./Akshantalu";
 
@@ -20,21 +20,29 @@ export function Blessings() {
       style={desktop ? { background: "linear-gradient(180deg, var(--burgundy) 0%, #5c1520 45%, #64161e 100%)" } : undefined}
     >
       <ArchEdge color="var(--burgundy)" flip />
+      <KolamTexture className="-z-20 opacity-[0.06]" id="kolam-blessings" />
       {!desktop && <Toranam className="absolute inset-x-0 top-0 h-[64px] w-full sm:h-[96px]" />}
 
       <div className="container-wide relative text-center">
         <Reveal>
-          <p className="t-deva text-gold-muted">{invocation}</p>
-          <p className="t-lead mx-auto mt-8 max-w-[34ch] text-[clamp(1.25rem,1.1rem+0.8vw,1.75rem)] text-ivory/90">{closing.message}</p>
+          <p className="font-display text-lg italic tracking-wide text-gold-muted">{invocation}</p>
+          <p className="t-lead mx-auto mt-8 max-w-[52ch] text-balance text-[clamp(1.25rem,1.1rem+0.8vw,1.75rem)] text-ivory/90">
+            {closing.message.split("\n").map((line) => (
+              <span key={line} className="block">
+                {line}
+              </span>
+            ))}
+          </p>
           {closing.blessing && <p className="t-deva mx-auto mt-6 max-w-[40ch] text-gold-muted">{closing.blessing}</p>}
         </Reveal>
 
         <Reveal delay={200} className="mt-12">
-          <p className="t-names !text-[clamp(2.5rem,1.6rem+4.4vw,5rem)]">
-            {bride.name} <span className="font-display italic text-gold">&amp;</span> {groom.name}
+          <p className="t-names !text-[clamp(2rem,1.4rem+3vw,3.75rem)]">
+            <span className="whitespace-nowrap">{groom.name}</span> <span className="font-display italic text-gold">&amp;</span>{" "}
+            <span className="whitespace-nowrap">{bride.name}</span>
           </p>
           <p className="t-label mt-6 text-gold-muted">{weddingDateLabel}</p>
-          <p className="mt-6 text-sm text-ivory/70">{closing.families}</p>
+          {closing.families && <p className="mt-6 text-sm text-ivory/70">{closing.families}</p>}
         </Reveal>
 
         <Reveal delay={300} className="mt-12">

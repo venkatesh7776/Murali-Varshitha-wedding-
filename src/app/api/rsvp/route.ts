@@ -1,5 +1,6 @@
 import { wedding } from "@/config/wedding";
 import { validateRsvp } from "@/lib/rsvp";
+import { rsvpCeremony } from "@/lib/wedding-data";
 
 /**
  * Persists an RSVP by forwarding it to RSVP_WEBHOOK_URL (see README → "RSVP storage").
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
         "content-type": "application/json",
         ...(process.env.RSVP_WEBHOOK_SECRET && { authorization: `Bearer ${process.env.RSVP_WEBHOOK_SECRET}` }),
       },
-      body: JSON.stringify({ ...result.data, secret: process.env.RSVP_WEBHOOK_SECRET, submittedAt: new Date().toISOString() }),
+      body: JSON.stringify({ ...result.data, event: rsvpCeremony?.name ?? "", secret: process.env.RSVP_WEBHOOK_SECRET, submittedAt: new Date().toISOString() }),
       signal: AbortSignal.timeout(10_000),
       redirect: "follow",
     });

@@ -10,7 +10,7 @@ import { AddToCalendar } from "./AddToCalendar";
 function CeremonyCard({ c, index }: { c: CeremonyView; index: number }) {
   const image = asset(c.photo) ?? generated(`ceremony-${c.motif}`);
   const reversed = index % 2 === 1;
-  const location = [c.venueName, c.venueAddress].filter(Boolean).join(", ");
+  const location = `${c.venue.name}, ${c.venue.address}`;
 
   return (
     <article className="grid items-center gap-8 md:grid-cols-2 md:gap-16">
@@ -42,9 +42,10 @@ function CeremonyCard({ c, index }: { c: CeremonyView; index: number }) {
               <dt className="sr-only">Time</dt>
               <dd className="font-medium text-ink">{c.timeLabel}</dd>
             </div>
-            <div>
+            <div className="pt-1">
               <dt className="sr-only">Venue</dt>
-              <dd className="text-ink-muted">{location}</dd>
+              <dd className="font-display text-xl text-maroon">{c.venue.name}</dd>
+              <dd className="text-ink-muted">{c.venue.address}</dd>
             </div>
             {c.dressCode && (
               <div className="pt-2">
@@ -54,7 +55,19 @@ function CeremonyCard({ c, index }: { c: CeremonyView; index: number }) {
             )}
           </dl>
           {c.description && <p className={`mx-auto mt-5 max-w-[38ch] text-ink-muted md:mx-0 ${reversed ? "md:ml-auto" : ""}`}>{c.description}</p>}
-          <div className="mt-6">
+          <div className={`mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 ${reversed ? "md:justify-end" : "md:justify-start"}`}>
+            <a
+              href={c.venue.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 border-b border-gold/60 text-sm font-medium text-maroon transition-colors duration-300 hover:border-maroon"
+            >
+              <svg aria-hidden viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.2}>
+                <path d="M8 14.5s-4.5-4.2-4.5-7.8a4.5 4.5 0 0 1 9 0c0 3.6-4.5 7.8-4.5 7.8Z" />
+                <circle cx="8" cy="6.6" r="1.6" />
+              </svg>
+              Get Directions
+            </a>
             <AddToCalendar
               uid={`${c.id}-${c.startIso}`}
               title={`${c.name} · ${coupleNames}`}

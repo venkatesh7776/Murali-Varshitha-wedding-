@@ -37,8 +37,16 @@ function Portrait({ person, role, delay, className = "" }: { person: Person; rol
       <Reveal delay={delay + 150} className="mt-10">
         <p className="t-label text-gold">The {role.toLowerCase()}</p>
         <h3 className="mt-3 font-display text-[clamp(2.5rem,2rem+2vw,3.5rem)] leading-none text-maroon">{person.name}</h3>
-        {person.parents && <p className="t-lead mt-4 text-[1.05rem] text-ink-muted">{person.parents}</p>}
+        {(person.invitationName || person.qualification) && (
+          <p className="mt-3 font-display text-lg italic text-ink">
+            {[person.invitationName, person.qualification].filter(Boolean).join(" · ")}
+          </p>
+        )}
+        {person.parents && <p className="t-lead mt-3 text-[1.05rem] text-ink-muted">{person.parents}</p>}
         <span aria-hidden className="mx-auto mt-5 block h-px w-12 bg-gold/60" />
+        {person.address && (
+          <address className="mx-auto mt-5 max-w-[32ch] text-[0.95rem] not-italic leading-relaxed text-ink-muted">{person.address}</address>
+        )}
         {person.intro && <p className="mx-auto mt-5 max-w-[32ch] text-[0.95rem] leading-relaxed text-ink-muted">{person.intro}</p>}
       </Reveal>
     </article>
@@ -50,7 +58,7 @@ function Ampersand({ className = "" }: { className?: string }) {
     <Reveal delay={250} className={`flex flex-col items-center gap-4 ${className}`}>
       <span aria-hidden className="hidden h-24 w-px bg-gradient-to-b from-transparent to-gold/60 md:block" />
       <span className="font-display text-[5.5rem] italic leading-none text-gold md:text-[7rem]">&amp;</span>
-      <span className="t-deva text-sm text-maroon">॥ शुभ विवाह ॥</span>
+      <span className="font-display text-base italic tracking-wide text-maroon">Shubha Vivaha</span>
       <span aria-hidden className="hidden h-24 w-px bg-gradient-to-t from-transparent to-gold/60 md:block" />
     </Reveal>
   );
@@ -67,15 +75,15 @@ export function Couple() {
       <div className="container-wide relative">
         <Reveal className="text-center">
           <p className="t-label text-gold">With joy, we introduce</p>
-          <h2 className="t-h2 mt-4">The Couple</h2>
+          <h2 className="t-h2 mt-4">{wedding.coupleHeading}</h2>
           <LotusDivider className="mt-6" />
           {wedding.coupleIntro && <p className="t-lead mx-auto mt-6 max-w-[46ch] text-ink-muted">{wedding.coupleIntro}</p>}
         </Reveal>
 
         <div className="mt-16 grid items-start gap-14 md:mt-20 md:grid-cols-[1fr_auto_1fr] md:gap-8 lg:gap-14">
-          <Portrait person={wedding.bride} role="Bride" delay={0} />
+          <Portrait person={wedding.groom} role="Groom" delay={0} />
           <Ampersand className="md:mt-16" />
-          <Portrait person={wedding.groom} role="Groom" delay={150} />
+          <Portrait person={wedding.bride} role="Bride" delay={150} />
         </div>
       </div>
     </section>

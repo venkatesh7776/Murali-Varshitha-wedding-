@@ -30,7 +30,7 @@ const siteUrl =
   (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
 
 const title = `${coupleNames} · Wedding Invitation`;
-const description = `With the blessings of our families, you are warmly invited to celebrate the wedding of ${coupleNames} · ${weddingDateLabel}.`;
+const description = wedding.invitation ?? `You are cordially invited to the wedding of ${coupleNames} · ${weddingDateLabel}.`;
 
 export const metadata: Metadata = {
   metadataBase: siteUrl ? new URL(siteUrl) : undefined,

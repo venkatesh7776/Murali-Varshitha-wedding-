@@ -36,7 +36,7 @@ export function CountdownTimer({ targetIso, endIso }: { targetIso: string; endIs
   }, [targetIso, endIso]);
 
   if (state?.phase === "during") {
-    return <p className="t-lead text-2xl text-gold-muted">The celebrations have begun.</p>;
+    return <p className="t-lead text-2xl text-gold-muted">Today is the day! Let the celebrations begin.</p>;
   }
   if (state?.phase === "after") {
     return <p className="t-lead text-2xl text-gold-muted">Thank you for celebrating with us.</p>;

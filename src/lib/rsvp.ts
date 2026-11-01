@@ -24,7 +24,7 @@ export function validateRsvp(
   if (name.length < 2) errors.name = "Please enter your name.";
   else if (name.length > LIMITS.name) errors.name = `Please keep your name under ${LIMITS.name} characters.`;
 
-  if (attending !== "yes" && attending !== "no") errors.attending = "Please let us know if you can attend.";
+  if (attending !== "yes" && attending !== "no") errors.attending = "Please let us know if you will be attending.";
 
   if (attending === "yes" && opts.collectGuestCount) {
     if (!Number.isInteger(guests) || guests < 1 || guests > opts.maxGuests)

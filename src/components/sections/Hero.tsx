@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { wedding } from "@/config/wedding";
 import { generated } from "@/lib/assets";
+import { weddingDateLabel } from "@/lib/wedding-data";
 import { Gopuram } from "../art/Gopuram";
 import { Toranam } from "../art/Toranam";
 import { Parallax } from "../motion/Parallax";
@@ -63,13 +64,13 @@ export function Hero() {
             : "pt-[max(6.5rem,15svh)] sm:pt-[max(8.5rem,16svh)]"
         }`}
       >
-        <p className={`hero-in t-deva text-base sm:text-lg ${photo ? "font-medium text-maroon" : "text-gold-muted"}`} style={delay(400)}>
+        <p className={`hero-in font-display text-lg italic tracking-wide sm:text-xl ${photo ? "font-medium text-maroon" : "text-gold-muted"}`} style={delay(400)}>
           {wedding.invocation}
         </p>
 
         <h1 className={`t-names mt-6 sm:mt-8 ${photo ? "font-medium [text-shadow:0_2px_20px_rgba(72,20,31,0.14)]" : ""}`}>
           <span className="hero-in block text-balance" style={delay(600)}>
-            {wedding.bride.name}
+            {wedding.groom.name}
           </span>
           <span className="hero-in my-1 flex items-center justify-center gap-4 sm:my-2" style={delay(760)}>
             <svg aria-hidden viewBox="0 0 80 2" className="h-px w-10 sm:w-16">
@@ -83,10 +84,16 @@ export function Hero() {
             </svg>
           </span>
           <span className="hero-in block text-balance" style={delay(880)}>
-            {wedding.groom.name}
+            {wedding.bride.name}
           </span>
         </h1>
 
+        <p className={`hero-in t-lead mt-5 max-w-[30ch] text-balance sm:mt-6 ${layered ? "portrait:hidden" : ""} ${photo ? "text-ink" : "text-ivory/85"}`} style={delay(1040)}>
+          cordially invite you and your family to celebrate their wedding
+        </p>
+        <p className={`hero-in t-label mt-4 ${layered ? "portrait:mt-3 [@media(orientation:portrait)_and_(max-height:760px)]:hidden" : ""} ${photo ? "text-maroon" : "text-gold"}`} style={delay(1160)}>
+          {weddingDateLabel}
+        </p>
 
       </Parallax>
 

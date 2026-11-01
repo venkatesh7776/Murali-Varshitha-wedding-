@@ -1,16 +1,22 @@
 /**
  * Single source of truth for every wedding detail shown on the site.
  *
- * Everything below is DUMMY content (names, venue, phone numbers and the
- * Unsplash photos in public/images/couple + gallery). Replace it with the couple's
- * real details, then set `isSample: false` (a reminder flag; nothing is shown on the page).
+ * Wedding of Murali N. & Varshitha D. S. — 16–19 November 2026, Mulbagal.
+ * Couple portraits and gallery photos are not set yet: add real photographs under
+ * public/images and reference them here (sections fall back gracefully until then).
  *
  * Dates/times are written as local wall-clock time ("YYYY-MM-DDTHH:mm") in
  * `timeZone`; the site converts them correctly for every guest.
  */
 
 export type Person = {
+  /** Short display name used in the hero, intro and closing */
   name: string;
+  /** Full name as written on the printed invitation */
+  invitationName?: string;
+  qualification?: string;
+  /** Family home, shown in the couple section */
+  address?: string;
   /** Short line under the name, e.g. "Daughter of ..." — optional */
   parents?: string;
   intro?: string;
@@ -25,12 +31,21 @@ export type Ceremony = {
   subtitle?: string;
   start: string;
   end?: string;
-  venueName: string;
-  venueAddress?: string;
+  /** id of an entry in `venues` */
+  venueId: string;
   description?: string;
   dressCode?: string;
   /** Illustration motif used when no photo/generated image exists */
   motif: "haldi" | "mehendi" | "sangeet" | "vivah" | "reception";
+  photo?: string;
+};
+
+export type Venue = {
+  id: string;
+  name: string;
+  address: string;
+  /** Exact Google Maps link supplied by the family — used for "Get Directions" */
+  mapUrl: string;
   photo?: string;
 };
 
@@ -42,17 +57,29 @@ export type WeddingConfig = {
   timeZone: string;
   bride: Person;
   groom: Person;
-  /** One or two sentences introducing the couple together */
+  /** Heading and line shown in the couple section */
+  coupleHeading: string;
   coupleIntro?: string;
+  /** Full invitation message (currently used for the link-preview description) */
+  invitation?: string;
   weddingStart: string;
   ceremonies: Ceremony[];
-  venue: { name: string; address: string; mapQuery: string; photo?: string; notes: string[] };
+  venues: Venue[];
+  /** The ceremony (by id) whose venue the venue section shows */
+  venueCeremonyId: string;
   gallery: GalleryImage[];
-  rsvp: { enabled: boolean; collectGuestCount: boolean; maxGuests: number; deadline?: string };
+  rsvp: {
+    enabled: boolean;
+    /** The ceremony (by id) guests are replying for */
+    ceremonyId: string;
+    collectGuestCount: boolean;
+    maxGuests: number;
+    deadline?: string;
+  };
   closing: {
     message: string;
-    families: string;
-    blessing: string;
+    families?: string;
+    blessing?: string;
     contacts: { label: string; phone: string }[];
   };
   music: { src: string; title: string; credit: string };
@@ -60,127 +87,105 @@ export type WeddingConfig = {
 };
 
 export const wedding: WeddingConfig = {
-  isSample: true,
+  isSample: false,
 
-  invocation: "॥ श्री गणेशाय नमः ॥",
+  invocation: "Om Shri Ganeshaya Namah",
   timeZone: "Asia/Kolkata",
 
-  bride: {
-    name: "Ananya",
-    parents: "Daughter of Smt. Lakshmi & Sri Raghavan Iyer",
-    intro: "An architect who sketches temples on weekends, sings Carnatic kritis while she cooks, and never says no to filter coffee.",
-    photo: "/images/couple/bride.webp",
-  },
-
   groom: {
-    name: "Arjun",
-    parents: "Son of Smt. Padma & Sri Venkat Rao",
-    intro: "A doctor with a quiet laugh and a loud cricket opinion, happiest on a long drive with old Ilaiyaraaja songs.",
+    name: "Murali N.",
+    invitationName: "Ch. Ry Murali. N",
+    qualification: "B.E., M.S.",
+    parents: "Son of Smt. Manjula. K & Sri. Narayanaswamy. M",
+    address: "Channapura, Angondahalli Panchayathi, Mulbagal Taluk, Kolar District.",
     photo: "/images/couple/groom.webp",
   },
 
-  coupleIntro:
-    "Two families from Chennai and Hyderabad, one shared love of music, food and long conversations — and now, one beautiful beginning.",
+  bride: {
+    name: "Varshitha D. S.",
+    invitationName: "Ch. Sou. Varshitha. D. S",
+    qualification: "B.Sc.",
+    parents: "Daughter of Smt. Bharathi. S & Sri. Santhosh. M",
+    address: "Doddamadenahalli, Balla Panchayathi, Mulbagal Taluk, Kolar District.",
+    photo: "/images/couple/bride.webp",
+  },
 
-  /** The main muhurtham; drives the countdown and the hero date. */
-  weddingStart: "2027-02-20T10:30",
+  coupleHeading: "Meet the Couple",
+  coupleIntro: "Two families, one beautiful beginning.",
+
+  invitation:
+    "With the blessings of our elders, we cordially invite you and your family to join us in celebrating the wedding of Murali and Varshitha. Your gracious presence and blessings will make our special occasion even more memorable.",
+
+  /** The Muhurtham (IST); drives the countdown and the hero date. */
+  weddingStart: "2026-11-19T04:30",
 
   ceremonies: [
     {
       id: "haldi",
       name: "Haldi",
-      subtitle: "Mangala snanam",
-      start: "2027-02-19T09:00",
-      end: "2027-02-19T12:00",
-      venueName: "Ananya's family home, Mylapore",
-      description: "Turmeric, marigolds and laughter as the families bless the couple.",
-      dressCode: "Shades of yellow",
+      start: "2026-11-16T14:00",
+      venueId: "home",
+      description: "Let's begin the celebrations with colours, laughter, and blessings. Join us for a joyful Haldi celebration.",
       motif: "haldi",
     },
     {
       id: "mehendi",
       name: "Mehendi",
-      start: "2027-02-19T16:00",
-      end: "2027-02-19T19:00",
-      venueName: "Sri Lakshmi Kalyana Mandapam — Garden Courtyard",
-      description: "An afternoon of henna, music and the little joys before forever.",
-      dressCode: "Greens and pastels",
+      start: "2026-11-17T14:00",
+      venueId: "home",
+      description: "An afternoon filled with beautiful traditions, intricate mehendi, and happy moments. We can't wait to celebrate with you.",
       motif: "mehendi",
-    },
-    {
-      id: "sangeet",
-      name: "Sangeet",
-      start: "2027-02-19T19:30",
-      end: "2027-02-19T23:00",
-      venueName: "Sri Lakshmi Kalyana Mandapam — Lawn",
-      description: "An evening of song and dance with both families.",
-      dressCode: "Festive evening wear",
-      motif: "sangeet",
-    },
-    {
-      id: "vivah",
-      name: "Vivah",
-      subtitle: "The wedding ceremony",
-      start: "2027-02-20T10:30",
-      end: "2027-02-20T13:30",
-      venueName: "Sri Lakshmi Kalyana Mandapam — Main Hall",
-      description: "The sacred vows before Agni, followed by lunch with family and friends.",
-      dressCode: "Traditional attire",
-      motif: "vivah",
     },
     {
       id: "reception",
       name: "Reception",
-      start: "2027-02-20T19:00",
-      end: "2027-02-20T22:30",
-      venueName: "The Banyan Courtyard, Mylapore",
-      description: "Dinner and celebration as we begin our new life together.",
-      dressCode: "Formal",
+      start: "2026-11-18T18:30",
+      venueId: "hall",
+      description: "Join us for an evening of celebration, joy, and togetherness as we begin this beautiful new chapter.",
       motif: "reception",
+    },
+    {
+      id: "muhurtham",
+      name: "Muhurtham",
+      subtitle: "The wedding ceremony",
+      start: "2026-11-19T04:30",
+      end: "2026-11-19T05:30",
+      venueId: "hall",
+      description: "With the blessings of our families and elders, join us for the auspicious wedding ceremony of Murali and Varshitha.",
+      motif: "vivah",
     },
   ],
 
-  venue: {
-    name: "Sri Lakshmi Kalyana Mandapam",
-    /** Full address. Leave empty to hide the map until confirmed. */
-    address: "12 Kutchery Road, Mylapore, Chennai, Tamil Nadu 600004",
-    /** Optional precise destination, e.g. "12.9716,77.5946" or a Google Maps place query */
-    mapQuery: "Kutchery Road, Mylapore, Chennai",
-    notes: [
-      "Valet parking at the main gate; additional parking on Luz Church Road.",
-      "Shuttles run every 30 minutes from Hotel Savera from 8:30 am on the wedding day.",
-      "Rooms for outstation guests are held at Hotel Savera — mention “Ananya & Arjun”.",
-    ],
-  },
-
-  /** Shapes chosen so 8 tiles fill the grid exactly; any mix works. */
-  gallery: [
-    { src: "/images/gallery/01-sacred-fire.webp", alt: "Hands joined over the sacred fire", shape: "tall" },
-    { src: "/images/gallery/04-seated.webp", alt: "The couple seated during the ceremony", shape: "wide" },
-    { src: "/images/gallery/03-portrait.webp", alt: "The couple under a canopy of lights", shape: "tall" },
-    { src: "/images/gallery/05-mehendi.webp", alt: "Mehendi-adorned hands", shape: "wide" },
-    { src: "/images/gallery/02-floral-arch.webp", alt: "Celebrating under a floral arch", shape: "square" },
-    { src: "/images/gallery/06-haldi.webp", alt: "Haldi morning", shape: "square" },
-    { src: "/images/gallery/07-together.webp", alt: "The couple in traditional attire", shape: "square" },
-    { src: "/images/gallery/08-bride.webp", alt: "Bridal portrait", shape: "square" },
+  venues: [
+    {
+      id: "home",
+      name: "Murali Home",
+      address: "Doddamadenahalli, Karnataka 563131.",
+      mapUrl: "https://maps.app.goo.gl/394Awx3uaKu5ZQuV7?g_st=ic",
+    },
+    {
+      id: "hall",
+      name: "Sri Phoolchand Jain Convention Hall",
+      address: "Near Sonnavadi Road, NH 75 Bridge, M.N. Road, Mulbagal Bypass, Mulbagal - 563131, Kolar District.",
+      mapUrl: "https://maps.app.goo.gl/CYFUihGDYqt4CLbq5",
+    },
   ],
+
+  venueCeremonyId: "muhurtham",
+
+  /** Add the couple's own photographs here (e.g. { src: "/images/gallery/01.webp", alt: "…", shape: "tall" }). Empty hides the section. */
+  gallery: [],
 
   rsvp: {
     enabled: true,
+    ceremonyId: "reception",
     collectGuestCount: true,
-    maxGuests: 6,
-    deadline: "2027-01-31",
+    maxGuests: 5,
   },
 
   closing: {
-    message:
-      "With the blessings of our families, we look forward to celebrating this beautiful beginning with you.",
-    families: "With love, the Iyer and Rao families",
-    blessing: "माङ्गल्यं तन्तुनानेन मम जीवनहेतुना । कण्ठे बध्नामि सुभगे त्वं जीव शरदां शतम् ॥",
-    contacts: [
-      { label: "Bride's family", phone: "+91 98765 43210" },
-      { label: "Groom's family", phone: "+91 98765 43211" },
-    ],
+    message: "Two hearts. One beautiful journey.\nWe look forward to celebrating this special beginning with you.",
+    contacts: [],
   },
 
   music: {
