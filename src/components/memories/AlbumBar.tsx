@@ -16,10 +16,10 @@ export function AlbumBar({ title }: { title: string }) {
           <span className="hidden sm:inline">All Albums</span>
         </Link>
         <div className="min-w-0 flex-1 text-center">
-          <h1 className="truncate font-display text-[clamp(1.5rem,1.2rem+1.4vw,2.5rem)] leading-tight text-maroon">{title}</h1>
+          <h1 className="line-clamp-2 text-balance font-display text-[clamp(1.35rem,1.1rem+1.4vw,2.5rem)] leading-[1.1] text-maroon">{title}</h1>
         </div>
         {/* balances the back button so the title stays centred */}
-        <span aria-hidden className="w-[5.5rem] shrink-0 sm:w-[8.5rem]" />
+        <span aria-hidden className="w-0 shrink-0 sm:w-[8.5rem]" />
       </div>
     </header>
   );

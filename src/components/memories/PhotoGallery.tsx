@@ -48,11 +48,47 @@ function TileBadges({ p }: { p: MemoryPhoto }) {
   );
 }
 
+/** 2 / 3 / 4 columns by width, matching the old md/lg breakpoints. */
+function useColumnCount() {
+  const [n, setN] = useState(2);
+  useEffect(() => {
+    const md = matchMedia("(min-width: 768px)");
+    const lg = matchMedia("(min-width: 1024px)");
+    const update = () => setN(lg.matches ? 4 : md.matches ? 3 : 2);
+    update();
+    md.addEventListener("change", update);
+    lg.addEventListener("change", update);
+    return () => {
+      md.removeEventListener("change", update);
+      lg.removeEventListener("change", update);
+    };
+  }, []);
+  return n;
+}
+
 /** Masonry gallery of one folder, refreshed live, with a full-screen viewer. */
 export function PhotoGallery({ folderId, initial }: { folderId: string; initial: MemoryPhoto[] }) {
   const photos = useLiveData(`/api/wedding-memories/${folderId}`, initial, pickPhotos);
+  const columnCount = useColumnCount();
+  // Real height/width of each photo once it loads, so columns can be balanced.
+  const [ratios, setRatios] = useState<Record<string, number>>({});
+  const noteRatio = useCallback(
+    (id: string, r: number) => setRatios((prev) => (Math.abs((prev[id] ?? 0) - r) < 0.01 ? prev : { ...prev, [id]: r })),
+    [],
+  );
   const [openId, setOpenId] = useState<string | null>(null);
   const index = openId ? photos.findIndex((p) => p.id === openId) : -1;
+
+  // Masonry: each photo goes to the currently shortest column (newest first), so columns end
+  // evenly; never more columns than photos, so even a small album spans the full width.
+  const cols = Math.max(1, Math.min(columnCount, photos.length));
+  const columns: { p: MemoryPhoto; i: number }[][] = Array.from({ length: cols }, () => []);
+  const heights = new Array(cols).fill(0);
+  photos.forEach((p, i) => {
+    const c = heights.indexOf(Math.min(...heights));
+    columns[c].push({ p, i });
+    heights[c] += (ratios[p.id] ?? 1.25) + 0.04; // + the gap between tiles
+  });
 
   if (!photos.length) {
     return (
@@ -72,25 +108,29 @@ export function PhotoGallery({ folderId, initial }: { folderId: string; initial:
       <p className="t-label mb-6 text-center text-[10px] text-gold" aria-live="polite">
         {photos.length} {photos.length === 1 ? "photo" : "photos"}
       </p>
-      <ul className="columns-2 gap-3 sm:gap-4 md:columns-3 lg:columns-4">
-        {photos.map((p, i) => (
-          <li key={p.id} className="fade-in mb-3 break-inside-avoid sm:mb-4" style={{ animationDelay: `${Math.min(i, 12) * 50}ms` }}>
-            <button
-              type="button"
-              onClick={() => setOpenId(p.id)}
-              className="group relative block w-full overflow-hidden rounded-sm outline-none ring-1 ring-gold/25 focus-visible:ring-2 focus-visible:ring-gold"
-              aria-label={`Open photo ${i + 1} of ${photos.length} — ${credit(p)}${p.message ? `: “${p.message}”` : ""}`}
-            >
-              <FadeImage src={p.url} alt="" wrapperClassName="min-h-32" className="block h-auto w-full transition-transform duration-700 ease-[var(--ease-silk)] group-hover:scale-[1.03]" />
-              <TileBadges p={p} />
-              <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-burgundy/85 via-burgundy/40 to-transparent px-3 pb-2.5 pt-10 text-left">
-                {p.message && <span className="line-clamp-2 font-display text-[15px] italic leading-snug text-ivory">“{p.message}”</span>}
-                <span className="mt-0.5 block text-[11px] text-ivory/80">{credit(p)}</span>
-              </span>
-            </button>
-          </li>
+      <div className="flex gap-3 sm:gap-4">
+        {columns.map((column, c) => (
+          <ul key={c} className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
+            {column.map(({ p, i }) => (
+              <li key={p.id} className="fade-in" style={{ animationDelay: `${Math.min(i, 12) * 50}ms` }}>
+                <button
+                  type="button"
+                  onClick={() => setOpenId(p.id)}
+                  className="group relative block w-full overflow-hidden rounded-sm outline-none ring-1 ring-gold/25 focus-visible:ring-2 focus-visible:ring-gold"
+                  aria-label={`Open photo ${i + 1} of ${photos.length} — ${credit(p)}${p.message ? `: “${p.message}”` : ""}`}
+                >
+                  <FadeImage src={p.url} alt="" onRatio={(r) => noteRatio(p.id, r)} wrapperClassName="min-h-32" className="block h-auto w-full transition-transform duration-700 ease-[var(--ease-silk)] group-hover:scale-[1.03]" />
+                  <TileBadges p={p} />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-burgundy/85 via-burgundy/40 to-transparent px-3 pb-2.5 pt-10 text-left">
+                    {p.message && <span className="line-clamp-2 font-display text-[15px] italic leading-snug text-ivory">“{p.message}”</span>}
+                    <span className="mt-0.5 block text-[11px] text-ivory/80">{credit(p)}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
         ))}
-      </ul>
+      </div>
       {index >= 0 && <Lightbox photos={photos} index={index} onIndex={(i) => setOpenId(photos[i]?.id ?? null)} onClose={() => setOpenId(null)} />}
     </>
   );
