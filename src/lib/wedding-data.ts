@@ -41,7 +41,7 @@ export const ceremonies = wedding.ceremonies
       endIso: (end ?? new Date(start.getTime() + 3 * 3600_000)).toISOString(),
       dateLabel: formatDate(start, tz, { weekday: "long" }),
       timeLabel: `${formatTime(start, tz)}${end ? ` – ${formatTime(end, tz)}` : " onwards"} ${zoneLabel(start, tz)}`,
-      altTimeLabel: altTimeLabel(start, end),
+      altTimeLabel: c.showSecondaryTime === false ? undefined : altTimeLabel(start, end),
     };
   });
 

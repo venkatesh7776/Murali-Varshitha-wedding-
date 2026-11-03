@@ -1,13 +1,19 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { BEGIN_EVENT } from "./sections/IntroReveal";
+
+/** Dispatched by voice-note players so the music softens while a guest's voice plays. */
+export const VOICE_EVENT = "wedding:voice";
 
 type Props = { musicSrc: string; musicTitle: string };
 
 /**
  * Music control (mute/unmute). Music starts when the guest taps "Explore Our Wedding"
  * (a real gesture, so browsers allow it); the dock shows from then on, or once the hero is scrolled past.
+ * Other pages (the memories albums) show the dock straight away and start the music on the guest's
+ * first tap — unless they muted it.
  */
 export function FloatingDock({ musicSrc, musicTitle }: Props) {
   const [scrolled, setScrolled] = useState(false);
@@ -15,6 +21,9 @@ export function FloatingDock({ musicSrc, musicTitle }: Props) {
   const [playing, setPlaying] = useState(false);
   const [note, setNote] = useState("");
   const audio = useRef<HTMLAudioElement>(null);
+  const mutedByGuest = useRef(false);
+  const pathname = usePathname();
+  const onHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.6);
@@ -33,7 +42,33 @@ export function FloatingDock({ musicSrc, musicTitle }: Props) {
     return () => window.removeEventListener(BEGIN_EVENT, onBegin);
   });
 
-  const visible = begun || scrolled;
+  // Away from the invitation there's no "Explore" button, so begin on the first tap anywhere.
+  useEffect(() => {
+    if (onHome || playing || mutedByGuest.current) return;
+    const first = (e: Event) => {
+      // the dock's own button handles itself
+      if ((e.target as Element | null)?.closest?.("[data-music-toggle]")) return;
+      void startMusic();
+    };
+    window.addEventListener("pointerdown", first, { once: true });
+    window.addEventListener("keydown", first, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", first);
+      window.removeEventListener("keydown", first);
+    };
+  });
+
+  // Soften the music while a guest's voice note plays.
+  useEffect(() => {
+    const onVoice = (e: Event) => {
+      const el = audio.current;
+      if (el) el.volume = (e as CustomEvent<boolean>).detail ? 0.06 : 0.45;
+    };
+    window.addEventListener(VOICE_EVENT, onVoice);
+    return () => window.removeEventListener(VOICE_EVENT, onVoice);
+  }, []);
+
+  const visible = begun || scrolled || !onHome;
 
   async function startMusic() {
     const el = audio.current;
@@ -54,8 +89,10 @@ export function FloatingDock({ musicSrc, musicTitle }: Props) {
     if (playing) {
       el.pause();
       setPlaying(false);
+      mutedByGuest.current = true;
       return;
     }
+    mutedByGuest.current = false;
     await startMusic();
     if (el.paused) setNote("Music couldn't start on this browser.");
   }
@@ -77,7 +114,7 @@ export function FloatingDock({ musicSrc, musicTitle }: Props) {
       {musicSrc && (
         <>
           <audio ref={audio} src={musicSrc} loop preload="metadata" onEnded={() => setPlaying(false)} />
-          <button type="button" onClick={toggleMusic} aria-pressed={playing} aria-label={playing ? `Mute ${musicTitle || "music"}` : `Unmute ${musicTitle || "music"}`} className={btn} tabIndex={visible ? 0 : -1}>
+          <button type="button" data-music-toggle onClick={toggleMusic} aria-pressed={playing} aria-label={playing ? `Mute ${musicTitle || "music"}` : `Unmute ${musicTitle || "music"}`} className={btn} tabIndex={visible ? 0 : -1}>
             {/* speaker with sound waves while playing, crossed out when muted */}
             <svg aria-hidden viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" fillOpacity={0.15} />

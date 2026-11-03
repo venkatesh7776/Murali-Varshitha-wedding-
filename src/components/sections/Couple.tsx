@@ -37,18 +37,14 @@ function Portrait({ person, role, delay, className = "" }: { person: Person; rol
       <Reveal delay={delay + 150} className="mt-10">
         <p className="t-label text-gold">The {role.toLowerCase()}</p>
         <h3 className="mt-3 font-display text-[clamp(2.5rem,2rem+2vw,3.5rem)] leading-none text-maroon">{person.name}</h3>
-        {(person.invitationName || person.qualification) && (
-          <p className="mt-3 font-display text-lg italic text-ink">
-            {[person.invitationName, person.qualification].filter(Boolean).join(" · ")}
-          </p>
-        )}
+        {person.qualification && <p className="mt-3 font-display text-lg italic text-ink-muted">{person.qualification}</p>}
         {person.parents && (
-          <p className="mt-3 text-[1rem] font-semibold leading-relaxed text-ink">
-            {/* keep each parent's name on one line */}
-            {person.parents.split(" & ").map((part, i) => (
-              <span key={part}>
-                {i > 0 && " & "}
-                <span className="whitespace-nowrap">{part}</span>
+          <p className="mx-auto mt-4 max-w-[34ch] text-balance leading-relaxed">
+            <span className="font-display text-[1.05rem] italic text-ink-muted">{person.parents.relation}</span>{" "}
+            {person.parents.names.map((n, i) => (
+              <span key={n}>
+                {i > 0 && <span className="font-display text-[1.05rem] italic text-gold"> &amp; </span>}
+                <span className="whitespace-nowrap font-semibold text-maroon">{n}</span>
               </span>
             ))}
           </p>

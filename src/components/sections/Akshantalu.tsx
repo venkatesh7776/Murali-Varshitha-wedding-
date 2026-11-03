@@ -88,7 +88,7 @@ export function Akshantalu() {
         </svg>
       </button>
       <p aria-live="polite" className="min-h-6 text-sm text-ivory/70">
-        {blessed ? "Your blessings have reached the couple." : "Tap to bless the couple with sacred rice and petals."}
+        {blessed ? "Your blessings have reached the couple." : "Shower the couple with virtual sacred rice and flower petals."}
       </p>
     </div>
   );

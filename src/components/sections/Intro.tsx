@@ -28,6 +28,16 @@ export function Intro() {
       />
 
       <div className="flex flex-col items-center">
+        {/* eslint-disable-next-line @next/next/no-img-element -- small decorative icon */}
+        <img
+          src="/images/intro/ganesha.webp"
+          alt="Lord Ganesha"
+          width={320}
+          height={417}
+          className="hero-in mb-3 h-16 w-auto drop-shadow-[0_6px_10px_rgba(72,20,31,0.18)] sm:h-20"
+          style={delay(150)}
+          fetchPriority="high"
+        />
         <p className="hero-in font-display text-base italic tracking-wide text-[#9A7535] sm:text-lg" style={delay(300)}>
           {wedding.invocation}
         </p>

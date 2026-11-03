@@ -17,8 +17,8 @@ export type Person = {
   qualification?: string;
   /** Family home, shown in the couple section */
   address?: string;
-  /** Short line under the name, e.g. "Daughter of ..." — optional */
-  parents?: string;
+  /** e.g. { relation: "Son of", names: ["Smt. …", "Sri. …"] } — names are shown in bold */
+  parents?: { relation: string; names: string[] };
   intro?: string;
   /** Path under /public, e.g. "/images/couple/bride.jpg" */
   photo?: string;
@@ -34,6 +34,8 @@ export type Ceremony = {
   /** id of an entry in `venues` */
   venueId: string;
   description?: string;
+  /** Set false to hide the secondary (EST) time for this event */
+  showSecondaryTime?: boolean;
   dressCode?: string;
   /** Illustration motif used when no photo/generated image exists */
   motif: "haldi" | "mehendi" | "sangeet" | "vivah" | "reception";
@@ -47,6 +49,16 @@ export type Venue = {
   /** Exact Google Maps link supplied by the family — used for "Get Directions" */
   mapUrl: string;
   photo?: string;
+};
+
+export type Credit = {
+  role: string;
+  name: string;
+  description?: string;
+  link?: { label: string; url: string };
+  icon: "camera" | "lotus";
+  /** Placeholder until the real details arrive — shown softly as "coming soon" */
+  placeholder?: boolean;
 };
 
 export type GalleryImage = { src?: string; alt: string; shape?: "tall" | "wide" | "square" };
@@ -72,6 +84,7 @@ export type WeddingConfig = {
   /** The ceremony (by id) the countdown counts down to */
   countdownCeremonyId: string;
   gallery: GalleryImage[];
+  credits: { heading: string; intro?: string; items: Credit[] };
   rsvp: {
     enabled: boolean;
     /** The ceremony (by id) guests are replying for */
@@ -102,8 +115,8 @@ export const wedding: WeddingConfig = {
     name: "Murali N.",
     invitationName: "Ch. Ry Murali. N",
     qualification: "B.E., M.S.",
-    parents: "Son of Smt. Manjula. K & Sri. Narayanaswamy. M",
-    address: "Channapura, Angondahalli Panchayathi, Mulbagal Taluk, Kolar District, Karnataka, India.",
+    parents: { relation: "Son of", names: ["Smt. Manjula K.", "Sri Narayanaswamy M."] },
+    address: "Karnataka, India",
     photo: "/images/couple/groom.webp",
   },
 
@@ -111,19 +124,19 @@ export const wedding: WeddingConfig = {
     name: "Varshitha D. S.",
     invitationName: "Ch. Sou. Varshitha. D. S",
     qualification: "B.Sc.",
-    parents: "Daughter of Smt. Bharathi. S & Sri. Santhosh. M",
-    address: "Doddamadenahalli, Balla Panchayathi, Mulbagal Taluk, Kolar District, Karnataka, India.",
+    parents: { relation: "Daughter of", names: ["Smt. Bharathi S.", "Sri Santhosh M."] },
+    address: "Karnataka, India",
     photo: "/images/couple/bride.webp",
   },
 
   coupleHeading: "Meet the Couple",
-  coupleIntro: "Two families, one beautiful beginning.",
+  coupleIntro: "Two souls, one beautiful journey, forever intertwined.",
 
   invitation:
     "With the blessings of our elders, we cordially invite you and your family to join us in celebrating the wedding of Murali and Varshitha. Your gracious presence and blessings will make our special occasion even more memorable.",
 
-  /** The Muhurtham (IST); drives the countdown and the hero date. */
-  weddingStart: "2026-11-19T04:30",
+  /** The Reception (IST) — the main event; drives the hero and closing date. */
+  weddingStart: "2026-11-18T18:30",
 
   /** Display order on the page — the Reception is the main event. */
   ceremonies: [
@@ -132,7 +145,8 @@ export const wedding: WeddingConfig = {
       name: "Reception",
       start: "2026-11-18T18:30",
       venueId: "hall",
-      description: "Join us for an evening of celebration, joy, and togetherness as we begin this beautiful new chapter.",
+      description:
+        "An evening of elegance, a celebration of love, and memories to cherish forever. We warmly invite you and your family to grace our wedding reception with your presence and blessings.",
       motif: "reception",
     },
     {
@@ -142,7 +156,8 @@ export const wedding: WeddingConfig = {
       start: "2026-11-19T04:30",
       end: "2026-11-19T05:30",
       venueId: "hall",
-      description: "With the blessings of our families and elders, join us for the auspicious wedding ceremony of Murali and Varshitha.",
+      description:
+        "Two hearts united in love, two souls blessed for a lifetime. With the blessings of our elders and the grace of the Almighty, we warmly invite you and your family to witness the sacred union of Murali and Varshitha.",
       motif: "vivah",
     },
     {
@@ -150,14 +165,16 @@ export const wedding: WeddingConfig = {
       name: "Haldi",
       start: "2026-11-16T14:00",
       venueId: "home",
+      showSecondaryTime: false,
       description: "Let's begin the celebrations with colours, laughter, and blessings. Join us for a joyful Haldi celebration.",
       motif: "haldi",
     },
     {
       id: "mehendi",
       name: "Mehendi",
-      start: "2026-11-17T14:00",
+      start: "2026-11-17T11:00",
       venueId: "home",
+      showSecondaryTime: false,
       description: "An afternoon filled with beautiful traditions, intricate mehendi, and happy moments. We can't wait to celebrate with you.",
       motif: "mehendi",
     },
@@ -183,17 +200,30 @@ export const wedding: WeddingConfig = {
   venueCeremonyId: "reception",
   countdownCeremonyId: "reception",
 
-  /** Shapes chosen so 8 tiles fill the grid exactly; any mix works. Empty hides the section. */
-  gallery: [
-    { src: "/images/gallery/01-sacred-fire.webp", alt: "Hands joined over the sacred fire", shape: "tall" },
-    { src: "/images/gallery/04-seated.webp", alt: "A couple seated during the ceremony", shape: "wide" },
-    { src: "/images/gallery/03-portrait.webp", alt: "A couple under a canopy of lights", shape: "tall" },
-    { src: "/images/gallery/05-mehendi.webp", alt: "Mehendi-adorned hands", shape: "wide" },
-    { src: "/images/gallery/02-floral-arch.webp", alt: "Celebrating under a floral arch", shape: "square" },
-    { src: "/images/gallery/06-haldi.webp", alt: "Haldi morning", shape: "square" },
-    { src: "/images/gallery/07-together.webp", alt: "A couple in traditional attire", shape: "square" },
-    { src: "/images/gallery/08-bride.webp", alt: "Bridal portrait", shape: "square" },
-  ],
+  /** Add photos as { src: "/images/gallery/01.webp", alt: "…", shape: "tall" | "wide" | "square" }. Empty hides the section. */
+  gallery: [],
+
+  credits: {
+    heading: "Event Organiser & Photography",
+    intro: "The wonderful people bringing our celebration to life.",
+    items: [
+      {
+        role: "Event Organiser",
+        // TODO: replace with the organiser's real details
+        name: "Event organiser",
+        description: "Details coming soon.",
+        icon: "lotus",
+        placeholder: true,
+      },
+      {
+        role: "Photography",
+        name: "Unscripted Stories by Santhosh Vemula",
+        description: "Capturing every candid smile, ritual and moment of our celebration.",
+        link: { label: "@unscriptedstoriesbysv", url: "https://www.instagram.com/unscriptedstoriesbysv" },
+        icon: "camera",
+      },
+    ],
+  },
 
   rsvp: {
     enabled: true,
@@ -203,7 +233,8 @@ export const wedding: WeddingConfig = {
   },
 
   closing: {
-    message: "Two hearts. One beautiful journey.\nWe look forward to celebrating this special beginning with you.",
+    message:
+      "Two hearts, one beautiful journey, a lifetime of togetherness.\nYour presence and blessings will make our celebration truly unforgettable.",
     contacts: [],
   },
 

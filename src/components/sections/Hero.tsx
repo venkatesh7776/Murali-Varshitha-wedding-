@@ -64,6 +64,15 @@ export function Hero() {
             : "pt-[max(6.5rem,15svh)] sm:pt-[max(8.5rem,16svh)]"
         }`}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element -- small decorative icon */}
+        <img
+          src="/images/intro/ganesha.webp"
+          alt="Lord Ganesha"
+          width={320}
+          height={417}
+          className="hero-in mb-2 h-12 w-auto drop-shadow-[0_6px_10px_rgba(72,20,31,0.18)] sm:h-14 [@media(orientation:portrait)_and_(max-height:760px)]:hidden"
+          style={delay(250)}
+        />
         <p className={`hero-in font-display text-lg italic tracking-wide sm:text-xl ${photo ? "font-medium text-maroon" : "text-gold-muted"}`} style={delay(400)}>
           {wedding.invocation}
         </p>
@@ -88,8 +97,9 @@ export function Hero() {
           </span>
         </h1>
 
-        <p className={`hero-in t-lead mt-5 max-w-[30ch] text-balance sm:mt-6 ${layered ? "portrait:hidden" : ""} ${photo ? "text-ink" : "text-ivory/85"}`} style={delay(1040)}>
-          cordially invite you and your family to celebrate their wedding
+        <p className={`hero-in t-lead mt-5 max-w-[46ch] sm:mt-6 ${layered ? "portrait:hidden" : ""} ${photo ? "text-ink" : "text-ivory/85"}`} style={delay(1040)}>
+          <span className="block lg:whitespace-nowrap">Two hearts, one destiny, and a lifetime of togetherness.</span>
+          <span className="mt-1 block text-[0.92em] opacity-85 lg:whitespace-nowrap">Together with our families, we joyfully invite you to celebrate our wedding.</span>
         </p>
         <p className={`hero-in t-label mt-4 ${layered ? "portrait:mt-3 [@media(orientation:portrait)_and_(max-height:760px)]:hidden" : ""} ${photo ? "text-maroon" : "text-gold"}`} style={delay(1160)}>
           {weddingDateLabel}

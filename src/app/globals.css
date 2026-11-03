@@ -410,3 +410,14 @@ html[data-intro="done"] :is(#intro, #intro-spacer) {
     animation-play-state: paused;
   }
 }
+
+/* Wedding Memories: soft loading shimmer for photos */
+.memory-shimmer {
+  background: linear-gradient(100deg, var(--ivory-deep) 30%, color-mix(in oklab, var(--ivory) 70%, var(--gold) 12%) 50%, var(--ivory-deep) 70%);
+  background-size: 220% 100%;
+  animation: memory-shimmer 1.6s linear infinite;
+}
+@keyframes memory-shimmer {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}

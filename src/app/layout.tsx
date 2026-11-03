@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Cormorant_Garamond, Inter, Noto_Serif_Devanagari } from "next/font/google";
 import { wedding } from "@/config/wedding";
 import { coupleNames, weddingDateLabel } from "@/lib/wedding-data";
+import { FloatingDock } from "@/components/FloatingDock";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -51,7 +53,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${display.variable} ${body.variable} ${devanagari.variable} antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* In the root layout so the music keeps playing between the invitation and the memories pages */}
+        <Suspense fallback={null}>
+          <FloatingDock musicSrc={wedding.music.src} musicTitle={wedding.music.title} />
+        </Suspense>
+      </body>
     </html>
   );
 }

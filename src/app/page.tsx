@@ -1,4 +1,3 @@
-import { wedding } from "@/config/wedding";
 import { Intro } from "@/components/sections/Intro";
 import { Hero } from "@/components/sections/Hero";
 import { Couple } from "@/components/sections/Couple";
@@ -8,7 +7,8 @@ import { Venue } from "@/components/sections/Venue";
 import { Gallery } from "@/components/sections/Gallery";
 import { Rsvp } from "@/components/sections/Rsvp";
 import { Blessings } from "@/components/sections/Blessings";
-import { FloatingDock } from "@/components/FloatingDock";
+import { Credits } from "@/components/sections/Credits";
+import { Memories } from "@/components/sections/Memories";
 import { ScrollProgress } from "@/components/motion/ScrollProgress";
 import { TapBlessings } from "@/components/motion/TapBlessings";
 
@@ -30,12 +30,10 @@ export default function Invitation() {
         <Venue />
         <Gallery />
         <Rsvp />
+        <Memories />
+        <Credits />
         <Blessings />
       </main>
-      <FloatingDock
-        musicSrc={wedding.music.src}
-        musicTitle={wedding.music.title}
-      />
     </>
   );
 }
