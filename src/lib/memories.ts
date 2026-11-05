@@ -1,4 +1,6 @@
 import "server-only";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -10,6 +12,10 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * The tables have RLS enabled with no policies (the anon key can read nothing), so — exactly
  * like the QR app — we read on the server with the service-role key. It lives only in the
  * server-side env vars SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY and never reaches the browser.
+ *
+ * Photos and voice notes live in Cloudflare R2 when R2_ACCOUNT_ID, R2_ACCESS_KEY_ID,
+ * R2_SECRET_ACCESS_KEY and R2_BUCKET are set (same `<folderId>/<name>` keys as before);
+ * otherwise in the Supabase Storage bucket. Only the records stay in Supabase either way.
  *
  * The Supabase project holds a single wedding (there is no wedding_id column), so every folder
  * in it belongs to this invitation.
@@ -162,6 +168,24 @@ export async function signedFileUrl(folderId: string, name: string): Promise<str
     .limit(1)
     .maybeSingle();
   if (!row) return undefined;
-  const { data, error } = await db().storage.from(BUCKET).createSignedUrl(`${folderId}/${name}`, SIGNED_URL_SECONDS);
+  const key = `${folderId}/${name}`;
+  if (r2Configured()) {
+    return getSignedUrl(r2(), new GetObjectCommand({ Bucket: process.env.R2_BUCKET, Key: key }), { expiresIn: SIGNED_URL_SECONDS });
+  }
+  const { data, error } = await db().storage.from(BUCKET).createSignedUrl(key, SIGNED_URL_SECONDS);
   return error || !data ? undefined : data.signedUrl;
+}
+
+function r2Configured() {
+  return !!(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && process.env.R2_BUCKET);
+}
+
+let s3: S3Client | undefined;
+function r2() {
+  s3 ??= new S3Client({
+    region: "auto",
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: { accessKeyId: process.env.R2_ACCESS_KEY_ID!, secretAccessKey: process.env.R2_SECRET_ACCESS_KEY! },
+  });
+  return s3;
 }
