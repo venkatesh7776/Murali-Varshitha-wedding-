@@ -54,9 +54,13 @@ export type Venue = {
 export type Credit = {
   role: string;
   name: string;
+  /** Smaller line under the name, e.g. "by Santhosh Vemula" */
+  byline?: string;
   description?: string;
   link?: { label: string; url: string };
   icon: "camera" | "lotus";
+  /** Black-on-transparent logo under /public, shown in the medallion instead of the icon */
+  logo?: { src: string; alt: string; width: number; height: number };
   /** Placeholder until the real details arrive — shown softly as "coming soon" */
   placeholder?: boolean;
 };
@@ -209,7 +213,9 @@ export const wedding: WeddingConfig = {
     items: [
       {
         role: "Photography",
-        name: "Unscripted Stories by Santhosh Vemula",
+        name: "Unscripted Stories",
+        byline: "by Santhosh Vemula",
+        logo: { src: "/images/credits/unscripted-stories.png", alt: "Unscripted Stories by Santosh Vemula logo", width: 491, height: 136 },
         link: { label: "@unscriptedstoriesbysv", url: "https://www.instagram.com/unscriptedstoriesbysv" },
         icon: "camera",
       },

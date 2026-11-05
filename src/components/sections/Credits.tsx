@@ -29,7 +29,7 @@ function InstagramIcon() {
   );
 }
 
-/** Thanks the event organiser and photographer — the people behind the day. */
+/** Thanks the people behind the day — currently the photographer, shown with their logo. */
 export function Credits() {
   const { credits } = wedding;
   if (!credits.items.length) return null;
@@ -46,22 +46,59 @@ export function Credits() {
         <div className={`mt-14 grid gap-6 sm:gap-8 ${credits.items.length > 1 ? "sm:grid-cols-2" : "mx-auto max-w-md"}`}>
           {credits.items.map((c, i) => (
             <Reveal key={c.role} delay={i * 120} className="h-full">
-              <article className="relative flex h-full flex-col items-center rounded-sm border border-gold/35 bg-ivory-deep/40 px-6 pb-9 pt-10 text-center">
-                <span aria-hidden className="pointer-events-none absolute inset-2 rounded-[1px] border border-gold/15" />
-                <span className="grid h-14 w-14 place-items-center rounded-full border border-gold/50 bg-ivory text-maroon">
-                  <Icon name={c.icon} />
-                </span>
-                <p className="t-label mt-6 text-gold">{c.role}</p>
-                <h3 className={`mt-3 font-display text-[clamp(1.6rem,1.4rem+0.8vw,2rem)] leading-tight ${c.placeholder ? "italic text-ink-muted" : "text-maroon"}`}>
+              <article className="relative flex h-full flex-col items-center overflow-hidden rounded-sm border border-gold/40 bg-ivory-deep/40 px-6 pb-10 pt-12 text-center shadow-[0_18px_40px_-28px_rgba(90,20,30,0.35)] sm:px-10">
+                <span aria-hidden className="pointer-events-none absolute inset-2 rounded-[1px] border border-gold/20" />
+                {[
+                  "left-3 top-3",
+                  "right-3 top-3 -scale-x-100",
+                  "bottom-3 left-3 -scale-y-100",
+                  "bottom-3 right-3 -scale-100",
+                ].map((pos) => (
+                  <svg key={pos} aria-hidden viewBox="0 0 28 28" className={`pointer-events-none absolute h-7 w-7 text-gold/70 ${pos}`} fill="none" stroke="currentColor" strokeWidth={1}>
+                    <path d="M2 14V2h12" />
+                    <path d="M6 10V6h4" />
+                    <circle cx="2" cy="2" r="1.2" fill="currentColor" stroke="none" />
+                  </svg>
+                ))}
+
+                {c.logo ? (
+                  <span className="relative grid h-40 w-40 place-items-center rounded-full border border-gold/60 bg-ivory p-1.5 shadow-[0_10px_30px_-18px_rgba(90,20,30,0.45)] sm:h-44 sm:w-44">
+                    <span aria-hidden className="absolute inset-1.5 rounded-full border border-dashed border-gold/45" />
+                    <span
+                      role="img"
+                      aria-label={c.logo.alt}
+                      className="block w-[84%] bg-maroon"
+                      style={{
+                        aspectRatio: `${c.logo.width} / ${c.logo.height}`,
+                        maskImage: `url(${c.logo.src})`,
+                        WebkitMaskImage: `url(${c.logo.src})`,
+                        maskSize: "contain",
+                        WebkitMaskSize: "contain",
+                        maskRepeat: "no-repeat",
+                        WebkitMaskRepeat: "no-repeat",
+                        maskPosition: "center",
+                        WebkitMaskPosition: "center",
+                      }}
+                    />
+                  </span>
+                ) : (
+                  <span className="grid h-14 w-14 place-items-center rounded-full border border-gold/50 bg-ivory text-maroon">
+                    <Icon name={c.icon} />
+                  </span>
+                )}
+
+                <p className="t-label mt-7 text-gold">{c.role}</p>
+                <h3 className={`mt-3 text-balance font-display text-[clamp(1.8rem,1.5rem+1vw,2.3rem)] leading-tight ${c.placeholder ? "italic text-ink-muted" : "text-maroon"}`}>
                   {c.name}
                 </h3>
+                {c.byline && <p className="mt-1 font-display text-lg italic text-ink-muted">{c.byline}</p>}
                 {c.description && <p className="mx-auto mt-3 max-w-[30ch] text-[0.95rem] leading-relaxed text-ink-muted">{c.description}</p>}
                 {c.link && (
                   <a
                     href={c.link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-6 inline-flex min-h-11 items-center gap-2 border-b border-gold/60 text-sm font-medium text-maroon transition-colors duration-300 hover:border-maroon"
+                    className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full border border-gold/60 bg-ivory px-5 text-sm font-medium text-maroon transition-colors duration-300 hover:border-maroon hover:bg-maroon hover:text-ivory"
                   >
                     <InstagramIcon />
                     {c.link.label}
