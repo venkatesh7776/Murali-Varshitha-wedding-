@@ -3,7 +3,7 @@
 Use this prompt to restyle the QR Photo Management app so it looks like a native part of the
 wedding invitation website (https://murali-varshitha-wedding.vercel.app). Keep all existing
 functionality (folders, QR generation, guest uploads, notes, voice notes, reactions) and the
-Supabase backend unchanged — this is a visual re-skin only.
+Cloudflare backend unchanged — this is a visual re-skin only.
 
 ---
 
@@ -187,7 +187,7 @@ Homepage, in order:
    (Instagram @unscriptedstoriesbysv); organiser details to come
 10. **Closing / Blessings** (dark) — message, names, date, "Shower blessings" (rice & petal animation), mandap art
 
-Memories pages (read-only, data from the QR app's Supabase):
+Memories pages (read-only, data from the QR app's Cloudflare D1 database and R2 bucket):
 - `/wedding-memories` — burgundy header (Ganesha, "EVERY MOMENT, A MEMORY", "Wedding Memories",
   names, lotus) then left-aligned grid of folder cards (2 per row on phones, ~280px on desktop)
 - `/wedding-memories/[folderId]` — slim sticky ivory bar ("All Albums" pill + folder name), photo
@@ -196,14 +196,15 @@ Memories pages (read-only, data from the QR app's Supabase):
 
 ---
 
-## 11. Data structure (shared Supabase project — source of truth is the QR app)
+## 11. Data structure (shared Cloudflare D1 + R2 — source of truth is the QR app)
 
-- `memory_folders` — `id` (text), `name`, `event_date` (date), `event_type`, `created_at`
-- `memories` — `id`, `folder_id` → memory_folders, `source` ('guest' | 'couple'), `photo_name`,
-  `message` (≤1000), `guest_name` (≤60), `reactions` (jsonb emoji → count), `voice_name`, `created_at`
-- `memory_folder_summaries` (view) — folder + `photo_count` + `preview_names` (latest 2 photos)
-- Storage bucket `memories` (private) — files at `{folderId}/{name}`, served via short-lived signed URLs
-- RLS on with no public policies; both apps read/write server-side with the service-role key only.
+- D1 database `murali-varshitha-memories` (schema in the QR app's `db/schema.sql`):
+  - `memory_folders` — `id` (text), `name`, `event_date` (yyyy-mm-dd), `event_type`, `created_at`
+  - `memories` — `id`, `folder_id` → memory_folders, `source` ('guest' | 'couple'), `photo_name`,
+    `message` (≤1000), `guest_name` (≤60), `reactions` (JSON emoji → count), `voice_name`, `created_at`
+- R2 bucket `murali-varshitha-memories` (private) — files at `{folderId}/{name}`, served via short-lived
+  presigned URLs
+- Both apps read/write server-side only, with a Cloudflare API token (D1) and R2 access keys.
 
 ---
 
@@ -220,4 +221,4 @@ above, so it feels like the same product as the wedding website. Specifically:
   the event name and date, the QR code centred in a thin gold frame, and the line
   "Scan to share your photos with us".
 - The memory viewer matches the website's viewer (burgundy backdrop, details side panel).
-- Keep all existing functionality, routes, APIs and the Supabase schema exactly as they are.
+- Keep all existing functionality, routes, APIs and the database schema exactly as they are.

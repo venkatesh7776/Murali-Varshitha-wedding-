@@ -1,27 +1,21 @@
 import "server-only";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * READ-ONLY access to the Wedding Memories data owned by the QR photo app
- * (~/Desktop/qr feature, schema in its supabase/migrations). That app is the source of truth:
+ * (~/Desktop/qr feature, schema in its db/schema.sql). That app is the source of truth:
  * it creates folders, prints QR codes and stores guest uploads. This site never writes —
  * it only selects rows and signs short-lived download URLs. Reactions are shown, never added.
  *
- * The tables have RLS enabled with no policies (the anon key can read nothing), so — exactly
- * like the QR app — we read on the server with the service-role key. It lives only in the
- * server-side env vars SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY and never reaches the browser.
+ * Everything is on Cloudflare: records in the D1 database (queried through Cloudflare's HTTP
+ * API with CLOUDFLARE_API_TOKEN), photos and voice notes in the private R2 bucket. The
+ * credentials live only in server-side env vars and never reach the browser.
  *
- * Photos and voice notes live in Cloudflare R2 when R2_ACCOUNT_ID, R2_ACCESS_KEY_ID,
- * R2_SECRET_ACCESS_KEY and R2_BUCKET are set (same `<folderId>/<name>` keys as before);
- * otherwise in the Supabase Storage bucket. Only the records stay in Supabase either way.
- *
- * The Supabase project holds a single wedding (there is no wedding_id column), so every folder
- * in it belongs to this invitation.
+ * The database holds a single wedding (there is no wedding_id column), so every folder in it
+ * belongs to this invitation.
  */
 
-const BUCKET = "memories";
 const SIGNED_URL_SECONDS = 60 * 60;
 
 export type MemoryFolder = {
@@ -46,28 +40,30 @@ export type MemoryPhoto = {
   reactions: [emoji: string, count: number][];
 };
 
-function supabaseUrl() {
-  return process.env.SUPABASE_URL?.replace(/\/rest\/v1\/?$/, "").replace(/\/$/, "");
-}
-function serviceKey() {
-  return process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY;
-}
+const accountId = () => process.env.CLOUDFLARE_ACCOUNT_ID ?? process.env.R2_ACCOUNT_ID;
 
 export function memoriesConfigured() {
-  return Boolean(supabaseUrl() && serviceKey());
+  return Boolean(
+    accountId() &&
+      process.env.D1_DATABASE_ID &&
+      process.env.CLOUDFLARE_API_TOKEN &&
+      process.env.R2_ACCESS_KEY_ID &&
+      process.env.R2_SECRET_ACCESS_KEY &&
+      process.env.R2_BUCKET,
+  );
 }
 
-let client: SupabaseClient | undefined;
-function db() {
-  client ??= createClient(supabaseUrl()!, serviceKey()!, {
-    auth: { persistSession: false, autoRefreshToken: false },
+/** Runs one read query against D1 and returns its rows. */
+async function d1<T>(sql: string, params: unknown[] = []): Promise<T[]> {
+  const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId()}/d1/database/${process.env.D1_DATABASE_ID}/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ sql, params }),
+    cache: "no-store",
   });
-  return client;
-}
-
-function check<T>({ data, error }: { data: T | null; error: { message: string } | null }): T {
-  if (error) throw new Error(`Supabase: ${error.message}`);
-  return data as T;
+  const body = (await res.json().catch(() => ({}))) as { success?: boolean; errors?: { message: string }[]; result?: { results: T[] }[] };
+  if (!res.ok || !body.success) throw new Error(`D1: ${body.errors?.[0]?.message ?? `HTTP ${res.status}`}`);
+  return body.result?.[0]?.results ?? [];
 }
 
 /** Ids we generate are [\w-]; reject anything else before it reaches a query or storage path. */
@@ -75,7 +71,7 @@ const SAFE_ID = /^[\w-]{1,64}$/;
 const SAFE_NAME = /^[\w-]+\.\w+$/;
 export const isSafeFolderId = (id: string) => SAFE_ID.test(id);
 
-/** Stable same-origin image URL; the route below redirects to a fresh signed Storage URL. */
+/** Stable same-origin image URL; the route below redirects to a fresh signed R2 URL. */
 const fileUrl = (folderId: string, name: string) => `/api/wedding-memories/files/${folderId}/${name}`;
 
 type SummaryRow = {
@@ -84,31 +80,30 @@ type SummaryRow = {
   event_date: string | null;
   created_at: string;
   photo_count: number | string;
-  preview_names: string[] | null;
+  preview_names: string | null; // JSON array
 };
 
 /** Every event folder, in the order the couple created them, with count and latest photo. */
 export async function listMemoryFolders(): Promise<MemoryFolder[]> {
-  const rows = check<SummaryRow[]>(
-    await db()
-      .from("memory_folder_summaries")
-      .select("id, name, event_date, created_at, photo_count, preview_names")
-      .order("created_at"),
-  );
+  const rows = await d1<SummaryRow>(`
+    SELECT f.id, f.name, f.event_date, f.created_at,
+      (SELECT count(*) FROM memories m WHERE m.folder_id = f.id) AS photo_count,
+      (SELECT json_group_array(photo_name) FROM
+        (SELECT photo_name FROM memories m WHERE m.folder_id = f.id ORDER BY created_at DESC LIMIT 2)) AS preview_names
+    FROM memory_folders f
+    ORDER BY f.created_at`);
   return rows.map((r) => ({
     id: r.id,
     name: r.name,
     date: r.event_date ?? undefined,
     photoCount: Number(r.photo_count) || 0,
-    previewUrls: (r.preview_names ?? []).filter((n) => SAFE_NAME.test(n)).map((n) => fileUrl(r.id, n)),
+    previewUrls: (JSON.parse(r.preview_names ?? "[]") as string[]).filter((n) => SAFE_NAME.test(n)).map((n) => fileUrl(r.id, n)),
   }));
 }
 
 export async function getMemoryFolder(id: string): Promise<Omit<MemoryFolder, "photoCount" | "previewUrls"> | undefined> {
   if (!isSafeFolderId(id)) return undefined;
-  const row = check<{ id: string; name: string; event_date: string | null } | null>(
-    await db().from("memory_folders").select("id, name, event_date").eq("id", id).maybeSingle(),
-  );
+  const [row] = await d1<{ id: string; name: string; event_date: string | null }>("SELECT id, name, event_date FROM memory_folders WHERE id = ?", [id]);
   return row ? { id: row.id, name: row.name, date: row.event_date ?? undefined } : undefined;
 }
 
@@ -120,24 +115,26 @@ type PhotoRow = {
   created_at: string;
   message: string | null;
   voice_name: string | null;
-  reactions: Record<string, unknown> | null;
+  reactions: string | null; // JSON object
 };
 
-const givenReactions = (r: PhotoRow["reactions"]): [string, number][] =>
-  Object.entries(r ?? {})
+const givenReactions = (json: PhotoRow["reactions"]): [string, number][] => {
+  let r: Record<string, unknown> = {};
+  try {
+    r = JSON.parse(json ?? "{}") ?? {};
+  } catch {}
+  return Object.entries(r)
     .map(([emoji, n]) => [emoji, Number(n)] as [string, number])
     .filter(([emoji, n]) => n > 0 && emoji.length <= 16)
     .sort((a, b) => b[1] - a[1]);
+};
 
 /** Photos in one folder only, newest first, with the guest's note, voice note and reactions. */
 export async function listMemoryPhotos(folderId: string): Promise<MemoryPhoto[]> {
   if (!isSafeFolderId(folderId)) return [];
-  const rows = check<PhotoRow[]>(
-    await db()
-      .from("memories")
-      .select("id, photo_name, guest_name, source, created_at, message, voice_name, reactions")
-      .eq("folder_id", folderId)
-      .order("created_at", { ascending: false }),
+  const rows = await d1<PhotoRow>(
+    "SELECT id, photo_name, guest_name, source, created_at, message, voice_name, reactions FROM memories WHERE folder_id = ? ORDER BY created_at DESC",
+    [folderId],
   );
   return rows
     .filter((r) => SAFE_NAME.test(r.photo_name))
@@ -159,25 +156,13 @@ export async function listMemoryPhotos(folderId: string): Promise<MemoryPhoto[]>
  */
 export async function signedFileUrl(folderId: string, name: string): Promise<string | undefined> {
   if (!isSafeFolderId(folderId) || !SAFE_NAME.test(name)) return undefined;
-  // `name` matches SAFE_NAME ([\w-]+.\w+), so it is safe inside the filter expression.
-  const { data: row } = await db()
-    .from("memories")
-    .select("id")
-    .eq("folder_id", folderId)
-    .or(`photo_name.eq.${name},voice_name.eq.${name}`)
-    .limit(1)
-    .maybeSingle();
+  const [row] = await d1<{ id: string }>("SELECT id FROM memories WHERE folder_id = ? AND (photo_name = ? OR voice_name = ?) LIMIT 1", [
+    folderId,
+    name,
+    name,
+  ]);
   if (!row) return undefined;
-  const key = `${folderId}/${name}`;
-  if (r2Configured()) {
-    return getSignedUrl(r2(), new GetObjectCommand({ Bucket: process.env.R2_BUCKET, Key: key }), { expiresIn: SIGNED_URL_SECONDS });
-  }
-  const { data, error } = await db().storage.from(BUCKET).createSignedUrl(key, SIGNED_URL_SECONDS);
-  return error || !data ? undefined : data.signedUrl;
-}
-
-function r2Configured() {
-  return !!(process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && process.env.R2_BUCKET);
+  return getSignedUrl(r2(), new GetObjectCommand({ Bucket: process.env.R2_BUCKET, Key: `${folderId}/${name}` }), { expiresIn: SIGNED_URL_SECONDS });
 }
 
 let s3: S3Client | undefined;
