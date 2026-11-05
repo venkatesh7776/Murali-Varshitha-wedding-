@@ -43,7 +43,7 @@ export function Credits() {
           {credits.intro && <p className="t-lead mx-auto mt-6 max-w-[46ch] text-ink-muted">{credits.intro}</p>}
         </Reveal>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 sm:gap-8">
+        <div className={`mt-14 grid gap-6 sm:gap-8 ${credits.items.length > 1 ? "sm:grid-cols-2" : "mx-auto max-w-md"}`}>
           {credits.items.map((c, i) => (
             <Reveal key={c.role} delay={i * 120} className="h-full">
               <article className="relative flex h-full flex-col items-center rounded-sm border border-gold/35 bg-ivory-deep/40 px-6 pb-9 pt-10 text-center">

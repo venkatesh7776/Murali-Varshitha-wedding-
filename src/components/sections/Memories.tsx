@@ -36,18 +36,18 @@ export function Memories() {
 
         <div className="text-center md:text-left">
           <Reveal>
-            <p className="t-label text-gold">Capture. Share. Relive.</p>
-            <h2 className="t-h2 mt-4 text-balance">Every Moment, A Memory</h2>
-            <p className="t-lead mx-auto mt-5 max-w-[38ch] text-ivory/90 md:mx-0">
-              Scan the QR codes placed at each wedding event and upload the beautiful moments you capture.
+            <p className="t-label text-gold">A QR code at every event</p>
+            <h2 className="t-h2 mt-4 text-balance">Share the Moments You Capture</h2>
+            <p className="t-lead mx-auto mt-5 max-w-[40ch] text-ivory/90 md:mx-0">
+              You&apos;ll find a QR code at each of our wedding events. Please take a moment to scan it and upload the photos you take.
             </p>
             <p className="mx-auto mt-4 max-w-[44ch] text-[0.95rem] leading-relaxed text-ivory/65 md:mx-0">
-              All your photos will be collected into event-wise albums on this website. Come back anytime to explore and relive those memories!
+              Every photo will be saved right here on our wedding website, in an album for each event, so you can come back and relive the celebration anytime.
             </p>
           </Reveal>
           <Reveal delay={150} className="mt-9">
             <Link href="/wedding-memories" className="btn btn--gold group">
-              Explore Wedding Memories
+              View Wedding Memories
               <svg aria-hidden viewBox="0 0 16 16" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={1.4}>
                 <path d="M3 8h10M9 4l4 4-4 4" />
               </svg>

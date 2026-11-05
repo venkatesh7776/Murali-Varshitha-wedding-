@@ -61,7 +61,7 @@ function FolderCard({ f }: { f: MemoryFolder }) {
   return (
     <Link
       href={`/wedding-memories/${f.id}`}
-      aria-label={`${f.name} — ${photoLabel(f.photoCount)}${date ? `, ${date}` : ""}`}
+      aria-label={`${f.name}, ${photoLabel(f.photoCount)}${date ? `, ${date}` : ""}`}
       className="group relative block aspect-[5/4.4] w-full outline-none focus-visible:outline-2 focus-visible:outline-offset-[6px] focus-visible:outline-gold"
     >
       {/* back panel + tab: warm sand, with the faintest kolam */}
@@ -99,7 +99,9 @@ function FolderCard({ f }: { f: MemoryFolder }) {
 
 /** Event folders created in the QR app, refreshed live. */
 export function FolderGrid({ initial }: { initial: MemoryFolder[] }) {
-  const folders = useLiveData("/api/wedding-memories", initial, pickFolders);
+  const all = useLiveData("/api/wedding-memories", initial, pickFolders);
+  // Folders are created in the QR app before the events; show one only once guests have added photos.
+  const folders = all.filter((f) => f.photoCount > 0);
 
   if (!folders.length) {
     return (
@@ -107,8 +109,10 @@ export function FolderGrid({ initial }: { initial: MemoryFolder[] }) {
         <svg aria-hidden viewBox="0 0 48 40" className="mx-auto h-11 w-14 text-gold" fill="none" stroke="currentColor" strokeWidth={1.2}>
           <path d="M3 8a3 3 0 0 1 3-3h11l4 4h21a3 3 0 0 1 3 3v22a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" />
         </svg>
-        <p className="mt-5 font-display text-2xl text-maroon">No photos or folders are available yet</p>
-        <p className="mt-3 text-ink-muted">Albums will appear here once photos are shared at our celebration.</p>
+        <p className="mt-5 font-display text-2xl text-maroon">Your photos will appear here</p>
+        <p className="mt-3 text-ink-muted">
+          Scan the QR code at any of our wedding events and upload the photos you take. Once they&apos;re shared, you&apos;ll find them here in an album for each event.
+        </p>
       </div>
     );
   }

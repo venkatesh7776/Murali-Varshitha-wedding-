@@ -116,8 +116,8 @@ export const wedding: WeddingConfig = {
     invitationName: "Ch. Ry Murali. N",
     qualification: "B.E., M.S.",
     parents: { relation: "Son of", names: ["Smt. Manjula K.", "Sri Narayanaswamy M."] },
-    address: "Karnataka, India",
-    photo: "/images/couple/groom.webp",
+    address: "Channapura, Mulbagal Taluk, Kolar District, Karnataka",
+    photo: "/images/couple/groom-portrait.webp",
   },
 
   bride: {
@@ -125,8 +125,8 @@ export const wedding: WeddingConfig = {
     invitationName: "Ch. Sou. Varshitha. D. S",
     qualification: "B.Sc.",
     parents: { relation: "Daughter of", names: ["Smt. Bharathi S.", "Sri Santhosh M."] },
-    address: "Karnataka, India",
-    photo: "/images/couple/bride.webp",
+    address: "Doddamadenahalli, Mulbagal Taluk, Kolar District, Karnataka",
+    photo: "/images/couple/bride-portrait.webp",
   },
 
   coupleHeading: "Meet the Couple",
@@ -204,21 +204,12 @@ export const wedding: WeddingConfig = {
   gallery: [],
 
   credits: {
-    heading: "Event Organiser & Photography",
-    intro: "The wonderful people bringing our celebration to life.",
+    heading: "Our Photographer",
+    intro: "Capturing every smile, ritual and moment of our celebration.",
     items: [
-      {
-        role: "Event Organiser",
-        // TODO: replace with the organiser's real details
-        name: "Event organiser",
-        description: "Details coming soon.",
-        icon: "lotus",
-        placeholder: true,
-      },
       {
         role: "Photography",
         name: "Unscripted Stories by Santhosh Vemula",
-        description: "Capturing every candid smile, ritual and moment of our celebration.",
         link: { label: "@unscriptedstoriesbysv", url: "https://www.instagram.com/unscriptedstoriesbysv" },
         icon: "camera",
       },
