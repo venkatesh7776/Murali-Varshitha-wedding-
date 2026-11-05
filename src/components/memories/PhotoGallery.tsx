@@ -80,7 +80,8 @@ export function PhotoGallery({ folderId, initial }: { folderId: string; initial:
   const index = openId ? photos.findIndex((p) => p.id === openId) : -1;
 
   // Masonry: each photo goes to the currently shortest column (newest first), so columns end
-  // evenly; never more columns than photos, so even a small album spans the full width.
+  // evenly. A small album (fewer photos than columns) keeps the normal tile size and is
+  // centred, rather than stretching one or two photos across the whole page.
   const cols = Math.max(1, Math.min(columnCount, photos.length));
   const columns: { p: MemoryPhoto; i: number }[][] = Array.from({ length: cols }, () => []);
   const heights = new Array(cols).fill(0);
@@ -108,7 +109,10 @@ export function PhotoGallery({ folderId, initial }: { folderId: string; initial:
       <p className="t-label mb-6 text-center text-[10px] text-gold" aria-live="polite">
         {photos.length} {photos.length === 1 ? "photo" : "photos"}
       </p>
-      <div className="flex gap-3 sm:gap-4">
+      <div
+        className="mx-auto flex gap-[var(--gap)] [--gap:0.75rem] sm:[--gap:1rem]"
+        style={cols < columnCount ? { maxWidth: `calc((100% + var(--gap)) * ${cols} / ${columnCount} - var(--gap))` } : undefined}
+      >
         {columns.map((column, c) => (
           <ul key={c} className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
             {column.map(({ p, i }) => (
