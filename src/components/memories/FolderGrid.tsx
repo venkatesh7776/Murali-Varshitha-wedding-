@@ -109,9 +109,9 @@ export function FolderGrid({ initial }: { initial: MemoryFolder[] }) {
         <svg aria-hidden viewBox="0 0 48 40" className="mx-auto h-11 w-14 text-gold" fill="none" stroke="currentColor" strokeWidth={1.2}>
           <path d="M3 8a3 3 0 0 1 3-3h11l4 4h21a3 3 0 0 1 3 3v22a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" />
         </svg>
-        <p className="mt-5 font-display text-2xl text-maroon">Your photos will appear here</p>
+        <p className="mt-5 font-display text-2xl text-maroon">Photos will appear here after our wedding events</p>
         <p className="mt-3 text-ink-muted">
-          Scan the QR code at any of our wedding events and upload the photos you take. Once they&apos;re shared, you&apos;ll find them here in an album for each event.
+          Once each event is over, all the photos shared by our guests will be added here, in an album for each event. Please scan the QR code at the events and upload the moments you capture.
         </p>
       </div>
     );

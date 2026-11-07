@@ -3,13 +3,13 @@ import { ArchEdge, KolamTexture } from "../art/Ornaments";
 import { Reveal } from "../motion/Reveal";
 
 /**
- * Guest snapshots (illustrative) as overlapping Polaroids. The side prints sit inside the
+ * Event setups (Haldi, Mehendi, Reception — no people) as overlapping Polaroids. The side prints sit inside the
  * collage box (no clipping): each is 37% wide, shifted ±72% of its own width from centre.
  */
 const snapshots = [
-  { src: "/images/memories/guest-haldi.webp", caption: "Haldi", pos: "-translate-x-[72%] translate-y-[10%] -rotate-[7deg]" },
-  { src: "/images/memories/guest-mehendi.webp", caption: "Mehendi", pos: "translate-x-[72%] translate-y-[12%] rotate-[7deg]" },
-  { src: "/images/memories/guest-reception.webp", caption: "Reception", pos: "z-10 -translate-y-[6%] rotate-[1.5deg]" },
+  { src: "/images/memories/setup-haldi.webp", caption: "Haldi", pos: "-translate-x-[72%] translate-y-[10%] -rotate-[7deg]" },
+  { src: "/images/memories/setup-mehendi.webp", caption: "Mehendi", pos: "translate-x-[72%] translate-y-[12%] rotate-[7deg]" },
+  { src: "/images/memories/setup-reception.webp", caption: "Reception", pos: "z-10 -translate-y-[6%] rotate-[1.5deg]" },
 ];
 
 /** Homepage introduction to the guest photo albums (/wedding-memories). */
@@ -42,7 +42,7 @@ export function Memories() {
               You&apos;ll find a QR code at each of our wedding events. Please take a moment to scan it and upload the photos you take.
             </p>
             <p className="mx-auto mt-4 max-w-[44ch] text-[0.95rem] leading-relaxed text-ivory/65 md:mx-0">
-              Every photo will be saved right here on our wedding website, in an album for each event, so you can come back and relive the celebration anytime.
+              Once our wedding events are over, all the photos will appear right here on our wedding website, in an album for each event, so you can come back and relive the celebration anytime.
             </p>
           </Reveal>
           <Reveal delay={150} className="mt-9">
